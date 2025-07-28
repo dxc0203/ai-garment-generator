@@ -16,3 +16,6 @@ outputs/
 .vscode/
 .idea/
 .DS_Store
+
+# Secret keys
+.env

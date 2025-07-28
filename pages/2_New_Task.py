@@ -11,11 +11,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import ai_services
 from app.config import UPLOADS_DIR, SPEC_SHEET_PROMPT_DIR, NAME_TAG_PROMPT_DIR
-from app.translator import initialize_state, t, language_selector
+from app.translator import initialize_state, t, language_selector, display_model_status
+
 
 # --- Initialize State and Translator ---
 initialize_state()
 language_selector()
+display_model_status()
 
 # --- Helper Functions ---
 def get_prompt_files(prompt_dir):

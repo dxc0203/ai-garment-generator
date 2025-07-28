@@ -1,2 +1,6 @@
 [0718/142819.037:ERROR:registration_protocol_win.cc(136)] TransactNamedPipe: 管道已結束。 (0x6D)
 [0720/225643.388:ERROR:registration_protocol_win.cc(136)] TransactNamedPipe: 管道已結束。 (0x6D)
+[0728/180034.905:ERROR:third_party\crashpad\crashpad\util\win\registration_protocol_win.cc:136] TransactNamedPipe: 管道已結束。 (0x6D)
+[0728/180145.461:ERROR:third_party\crashpad\crashpad\util\win\registration_protocol_win.cc:136] TransactNamedPipe: 管道已結束。 (0x6D)
+[0728/180215.486:ERROR:third_party\crashpad\crashpad\util\win\registration_protocol_win.cc:136] TransactNamedPipe: 管道已結束。 (0x6D)
+[0728/183202.948:ERROR:third_party\crashpad\crashpad\util\win\registration_protocol_win.cc:136] TransactNamedPipe: 管道已結束。 (0x6D)

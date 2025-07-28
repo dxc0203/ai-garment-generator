@@ -6,14 +6,16 @@ import sys
 import json
 from PIL import Image
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import workflow_manager
-from app.translator import initialize_state, t, language_selector
+from app.translator import initialize_state, t, language_selector, display_model_status
 
 # --- Initialize State and Translator ---
 initialize_state()
 language_selector()
+display_model_status()
 
 st.set_page_config(page_title=t("Task Dashboard"), layout="wide")
 st.title(f"📊 {t('Task Dashboard')}")

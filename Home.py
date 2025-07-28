@@ -8,21 +8,22 @@ from collections import Counter
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
 from app.database import crud
-from app.translator import initialize_state, t, language_selector
+# Import the new function
+from app.translator import initialize_state, t, language_selector, display_model_status
 
-# --- 1. Initialize State ---
+# --- Initialize State, Language, and Model Status ---
 initialize_state()
+language_selector()
+display_model_status() # This one line replaces the entire block of code
 
-# --- 2. Page Config (Static) ---
+# --- Page Config ---
 st.set_page_config(
     page_title="AI Garment Generator",
     page_icon="🏠",
     layout="wide"
 )
 
-# --- 3. Language Selector and Translator Object ---
-language_selector()
-# The t function is now ready to use with the correct language
+# --- Main Page Content ---
 st.title(t("Welcome to the AI Garment Generator 🤖"))
 st.markdown("---")
 st.markdown(t("This internal tool automates the creation of standardized, on-model product imagery for our e-commerce platform."))
