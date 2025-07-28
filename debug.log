@@ -1,0 +1,2 @@
+[0718/142819.037:ERROR:registration_protocol_win.cc(136)] TransactNamedPipe: 管道已結束。 (0x6D)
+[0720/225643.388:ERROR:registration_protocol_win.cc(136)] TransactNamedPipe: 管道已結束。 (0x6D)
