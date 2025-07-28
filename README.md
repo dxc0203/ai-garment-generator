@@ -48,18 +48,19 @@ LM Studio: Download and install from lmstudio.ai.
 Stable Diffusion WebUI (AUTOMATIC1111): Follow the installation guide on their GitHub repository.
 
 2. Clone the Repository
+```
 git clone https://github.com/dxc0203/ai-garment-generator.git
 cd ai-garment-generator
-
+```
 3. Set Up the Python Environment
 # Create a virtual environment
-python -m venv .venv
+```python -m venv .venv```
 
 # Activate the virtual environment (on Windows PowerShell)
-'''.\.venv\Scripts\Activate.ps1'''
+```.\.venv\Scripts\Activate.ps1```
 
 # Install the required libraries
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
 4. Set Up Local AI Models
 LM Studio:
