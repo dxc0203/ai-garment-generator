@@ -8,11 +8,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import the new, specific prompt directories from the config
 from app.config import SPEC_SHEET_PROMPT_DIR, NAME_TAG_PROMPT_DIR
-from app.translator import initialize_state, t, language_selector
+from app.translator import initialize_state, t, language_selector, display_model_status
 
 # --- Initialize State and Translator ---
 initialize_state()
 language_selector()
+display_model_status()
 
 st.set_page_config(page_title=t("Prompt Management"), layout="wide")
 st.title(f"📝 {t('Prompt Template Management')}")

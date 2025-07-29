@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.core import ai_services
 from app.settings_manager import load_settings, save_settings
-from app.translator import initialize_state, t, language_selector
+from app.translator import initialize_state, t, language_selector, display_model_status
 
 # --- Load .env file for API keys ---
 load_dotenv()
@@ -17,6 +17,7 @@ load_dotenv()
 # --- Initialize State and Translator ---
 initialize_state()
 language_selector()
+display_model_status()
 
 st.set_page_config(page_title=t("Settings"), layout="wide")
 st.title(f"⚙️ {t('Application Settings')}")

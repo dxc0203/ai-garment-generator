@@ -43,7 +43,7 @@ def language_selector():
         on_change=on_lang_change
     )
 
-# --- NEW: Reusable Model Status Display Function ---
+# --- Reusable Model Status Display Function ---
 def display_model_status():
     """
     Checks and displays the status of selected AI models in the sidebar.
@@ -57,6 +57,13 @@ def display_model_status():
         st.sidebar.error(t("LM Studio server not found!"))
         return
 
+    # --- THIS IS THE FIX ---
+    # Helper function to safely get the display name
+    def get_display_name(model_identifier):
+        if model_identifier and '/' in model_identifier:
+            return model_identifier.split('/')[1]
+        return model_identifier # Return the full name if no '/' is present
+
     # Check Vision Model
     vision_config = settings.get("vision_service", {})
     vision_provider = vision_config.get("provider", "local")
@@ -65,7 +72,7 @@ def display_model_status():
     st.sidebar.markdown(f"**{t('Vision Model')}:**")
     if vision_provider == "local":
         if vision_model and vision_model in available_models:
-            st.sidebar.success(f"{vision_model.split('/')[1]}", icon="✅")
+            st.sidebar.success(f"{get_display_name(vision_model)}", icon="✅")
         else:
             st.sidebar.error(t("Model Missing!"), icon="⚠️")
     else: # For online models
@@ -83,7 +90,7 @@ def display_model_status():
     st.sidebar.markdown(f"**{t('Language Model')}:**")
     if lang_provider == "local":
         if lang_model and lang_model in available_models:
-            st.sidebar.success(f"{lang_model.split('/')[1]}", icon="✅")
+            st.sidebar.success(f"{get_display_name(lang_model)}", icon="✅")
         else:
             st.sidebar.error(t("Model Missing!"), icon="⚠️")
     else: # For online models
@@ -93,9 +100,6 @@ def display_model_status():
         else:
             st.sidebar.error(f"{t('API Key Missing!')}", icon="⚠️")
 
-# This function is no longer needed here as it will be in the specific modules
-# def ai_translate(...):
-# The logic for ai_translate is now in the main modules that use it.
 def ai_translate(text_to_translate: str, target_lang_code: str):
     settings = load_settings()
     service_config = settings.get("language_service", {})
