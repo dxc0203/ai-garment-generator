@@ -6,34 +6,23 @@ import base64
 import os
 import time
 from app.config import LM_STUDIO_API_URL, STABLE_DIFFUSION_API_URL, OUTPUTS_DIR
-from app.settings_manager import load_settings # Import the function, not the variable
+from app.settings_manager import load_settings
 
-# --- NEW: Function to get available models from LM Studio ---
-def get_available_lm_studio_models():
-    """Gets a list of all models currently loaded in LM Studio."""
+# --- 辅助函数 ---
+def encode_image_to_base64(filepath):
     try:
-        # The endpoint for listing models is different from the chat endpoint
-        models_url = LM_STUDIO_API_URL.replace("/chat/completions", "/models")
-        response = requests.get(models_url)
-        response.raise_for_status()
-        models_data = response.json()
-        # Extract the 'id' which is the model identifier
-        return [model['id'] for model in models_data['data']]
-    except requests.exceptions.RequestException as e:
-        print(f"Could not connect to LM Studio to get models: {e}")
-        return [] # Return an empty list on error
+        with open(filepath, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except FileNotFoundError: return None
 
-# --- LLaVA Service for Spec Sheet Generation ---
-def get_spec_from_image(image_paths: list, prompt_text: str):
-    """Gets a text description for a list of images from the selected LLaVA model."""
-    # --- THIS IS THE FIX ---
-    # Load the most recent settings from the file every time.
-    settings = load_settings()
-    print("DEBUG: Settings loaded in get_spec_from_image:", settings)
-    vision_model = settings.get("vision_model")
-    if not vision_model:
-        return "Error: No Vision Model has been selected in the Settings page."
+def get_file_mime_type(filepath):
+    ext = os.path.splitext(filepath)[1].lower()
+    return "image/png" if ext == ".png" else "image/jpeg"
 
+# --- 针对不同服务商的函数 ---
+
+def _call_local_vision_model(prompt_text: str, image_paths: list, model_name: str):
+    """调用本地LM Studio服务器执行视觉任务"""
     content_parts = [{"type": "text", "text": prompt_text}]
     for image_path in image_paths:
         base64_image = encode_image_to_base64(image_path)
@@ -45,28 +34,76 @@ def get_spec_from_image(image_paths: list, prompt_text: str):
             })
     
     headers = {"Content-Type": "application/json"}
-    data = {
-        "model": vision_model, # Use the model from settings
-        "messages": [{"role": "user", "content": content_parts}],
-        "max_tokens": 1000,
-    }
+    data = {"model": model_name, "messages": [{"role": "user", "content": content_parts}], "max_tokens": 1000}
+    
     try:
         response = requests.post(LM_STUDIO_API_URL, headers=headers, data=json.dumps(data))
         response.raise_for_status()
         return response.json()['choices'][0]['message']['content']
     except requests.exceptions.RequestException as e:
-        return f"Error communicating with AI model: {e}"
+        return f"Error: {e}"
 
-# --- Other functions (encode_image_to_base64, get_file_mime_type, generate_image_from_prompt) remain the same ---
-def encode_image_to_base64(filepath):
+def _call_online_vision_model(prompt_text: str, image_paths: list, model_name: str, provider: str):
+    """一个用于调用任何在线视觉模型的通用占位函数"""
+    api_key_name = f"{provider.upper()}_API_KEY"
+    api_key = os.getenv(api_key_name)
+    if not api_key:
+        return f"Error: {api_key_name} not found in .env file."
+    
+    return f"Placeholder: Would call {provider.title()} model '{model_name}' with the provided images."
+
+# --- 主要的路由函数 ---
+
+def get_spec_from_image(image_paths: list, prompt_text: str):
+    """用于获取规格表的主路由函数"""
+    settings = load_settings()
+    service_config = settings.get("vision_service", {})
+    provider = service_config.get("provider")
+    model = service_config.get("model")
+
+    if not provider or not model:
+        return "Error: Vision service not configured in Settings."
+
+    if provider == "local":
+        return _call_local_vision_model(prompt_text, image_paths, model)
+    elif provider in ["google", "openai", "anthropic"]:
+        return _call_online_vision_model(prompt_text, image_paths, model, provider)
+    else:
+        return f"Error: Unknown vision provider '{provider}'."
+
+def get_name_and_tags_from_image(image_paths: list, prompt_text: str):
+    """用于获取产品名称和标签的主路由函数"""
+    settings = load_settings()
+    service_config = settings.get("vision_service", {})
+    provider = service_config.get("provider")
+    model = service_config.get("model")
+
+    if not provider or not model:
+        return {"product_name": "Error", "tags": {"error": "Vision service not configured"}}
+
+    raw_response = "Error: Provider not configured"
+    if provider == "local":
+        raw_response = _call_local_vision_model(prompt_text, image_paths, model)
+    elif provider in ["google", "openai", "anthropic"]:
+        raw_response = _call_online_vision_model(prompt_text, image_paths, model, provider)
+
     try:
-        with open(filepath, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
-    except FileNotFoundError:
-        return None
-def get_file_mime_type(filepath):
-    ext = os.path.splitext(filepath)[1].lower()
-    return "image/png" if ext == ".png" else "image/jpeg"
+        cleaned_response = raw_response.strip().replace("```json", "").replace("```", "")
+        return json.loads(cleaned_response)
+    except (json.JSONDecodeError, TypeError):
+        return {"product_name": "AI Parsing Error", "tags": {}}
+
+def get_available_lm_studio_models():
+    try:
+        models_url = LM_STUDIO_API_URL.replace("/chat/completions", "/models")
+        response = requests.get(models_url)
+        response.raise_for_status()
+        models_data = response.json()
+        return [model['id'] for model in models_data['data']]
+    except requests.exceptions.RequestException:
+        return []
+
+# --- Stable Diffusion 服务 (未改变) ---
 def generate_image_from_prompt(prompt: str, product_code: str):
     payload = {
         "prompt": prompt,
