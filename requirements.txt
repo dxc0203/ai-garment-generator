@@ -1,11 +1,21 @@
-Main application framework
+# Main application framework
 streamlit
 
-For making API calls to local AI servers
+# For making API calls to local AI servers
 requests
 
-For handling and displaying images
+# For handling and displaying images
 Pillow
 
-For displaying database tables in the Database View page
+# For displaying database tables in the Database View page
 pandas
+
+# For loading API keys from .env file
+python-dotenv
+
+# For user authentication
+streamlit-authenticator
+
+# For background jobs and task queuing
+celery
+redis
