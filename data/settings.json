@@ -1,10 +1,14 @@
 {
   "vision_service": {
     "provider": "local",
-    "model": "llava-1.6-mistral-7b"
+    "model": "llava-1.6-mistral-7b",
+    "local_model": "llava-1.6-mistral-7b",
+    "openai_model": "gpt-image-1"
   },
   "language_service": {
     "provider": "local",
-    "model": "meta-llama-3-8b-instruct"
+    "model": "meta-llama-3-8b-instruct",
+    "local_model": "meta-llama-3-8b-instruct",
+    "openai_model": "gpt-5"
   }
 }

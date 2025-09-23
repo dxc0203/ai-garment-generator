@@ -15,7 +15,7 @@ from app.translator import ai_translate # We import the AI function directly
 # It should match the list in your language_selector.
 LANGUAGES_TO_CHECK = ["zh_CN", "es", "fr"]
 # How old a translation must be (in days) before it's deleted.
-DAYS_TO_KEEP = 90
+DAYS_TO_KEEP = 20
 # --- End of Configuration ---
 
 def main():
