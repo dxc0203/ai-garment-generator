@@ -52,9 +52,22 @@ def create_tables():
             );
             """)
             print("SQLite 'spec_sheet_versions' table checked/created successfully.")
-            
-            # --- translations table REMOVED ---
-            # Translation functionality has been removed from the application
+
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS interactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_id INTEGER,
+                step_name TEXT,
+                user_input TEXT,
+                ai_prompt TEXT,
+                ai_response TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                context TEXT,
+                FOREIGN KEY (task_id) REFERENCES tasks (id)
+            );
+            """)
+            print("SQLite 'interactions' table checked/created successfully.")
+
             
         except sqlite3.Error as e:
             print(f"An error occurred while creating tables: {e}")
