@@ -1,9 +1,7 @@
 # File: app/database/crud.py
-
 import sqlite3
 import os
 import json
-from datetime import datetime, timedelta
 from .models import create_connection
 
 # --- Task Functions ---
@@ -91,7 +89,6 @@ def update_task_with_ai_data(task_id, product_name, tags_dict):
         conn.close()
 
 # --- Spec Sheet Version Functions ---
-
 def create_spec_sheet_version(task_id, spec_text, author="AI"):
     conn = create_connection()
     if conn is None: return None
@@ -165,64 +162,12 @@ def add_generated_image_to_task(task_id, final_prompt, generated_image_path, red
     finally:
         conn.close()
 
-# --- Translation Cache Functions ---
-def get_translation(lang_code: str, source_text: str):
-    conn = create_connection()
-    if conn is None: return None
-    get_sql = "SELECT translated_text FROM translations WHERE lang_code = ? AND source_text = ?"
-    update_sql = "UPDATE translations SET last_used_at = CURRENT_TIMESTAMP WHERE lang_code = ? AND source_text = ?"
-    try:
-        cur = conn.cursor()
-        cur.execute(get_sql, (lang_code, source_text))
-        result = cur.fetchone()
-        if result:
-            cur.execute(update_sql, (lang_code, source_text))
-            conn.commit()
-            return result[0]
-        return None
-    finally:
-        conn.close()
-
-def add_translation(lang_code: str, source_text: str, translated_text: str):
-    conn = create_connection()
-    if conn is None: return False
-    sql = "INSERT INTO translations(lang_code, source_text, translated_text, created_at, last_used_at) VALUES(?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)"
-    try:
-        cur = conn.cursor()
-        cur.execute(sql, (lang_code, source_text, translated_text))
-        conn.commit()
-        return True
-    except sqlite3.Error:
-        return False
-    finally:
-        conn.close()
-
-def purge_old_translations(days_old: int = 90):
-    conn = create_connection()
-    if conn is None: return 0
-    cutoff_date = datetime.now() - timedelta(days=days_old)
-    sql = "DELETE FROM translations WHERE last_used_at < ?"
-    try:
-        cur = conn.cursor()
-        cur.execute(sql, (cutoff_date,))
-        deleted_count = cur.rowcount
-        conn.commit()
-        print(f"Purged {deleted_count} translations older than {days_old} days.")
-        return deleted_count
-    finally:
-        conn.close()
-
-def get_all_unique_source_texts():
-    conn = create_connection()
-    if conn is None: return []
-    sql = "SELECT DISTINCT source_text FROM translations"
-    try:
-        cur = conn.cursor()
-        cur.execute(sql)
-        results = [row[0] for row in cur.fetchall()]
-        return results
-    finally:
-        conn.close()
+# --- Translation Cache Functions (REMOVED) ---
+# All translation-related functions have been removed:
+# - get_translation()
+# - add_translation()
+# - purge_old_translations()
+# - get_all_unique_source_texts()
 
 def get_all_unique_tags():
     all_tasks = get_all_tasks()
