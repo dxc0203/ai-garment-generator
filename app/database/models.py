@@ -1,5 +1,4 @@
 # File: app/database/models.py
-
 import sqlite3
 
 DATABASE_NAME = "data/main.db"
@@ -39,8 +38,8 @@ def create_tables():
             );
             """)
             print("SQLite 'tasks' table checked/created successfully.")
-
-            # --- other tables (no changes) ---
+            
+            # --- spec_sheet_versions table ---
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS spec_sheet_versions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,18 +54,21 @@ def create_tables():
             print("SQLite 'spec_sheet_versions' table checked/created successfully.")
 
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS translations (
+            CREATE TABLE IF NOT EXISTS interactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                lang_code TEXT NOT NULL,
-                source_text TEXT NOT NULL,
-                translated_text TEXT NOT NULL,
+                task_id INTEGER,
+                step_name TEXT,
+                user_input TEXT,
+                ai_prompt TEXT,
+                ai_response TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(lang_code, source_text)
+                context TEXT,
+                FOREIGN KEY (task_id) REFERENCES tasks (id)
             );
             """)
-            print("SQLite 'translations' table checked/created successfully.")
+            print("SQLite 'interactions' table checked/created successfully.")
 
+            
         except sqlite3.Error as e:
             print(f"An error occurred while creating tables: {e}")
         finally:

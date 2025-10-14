@@ -1,4 +1,28 @@
+<<<<<<< HEAD
 streamlit
 requests
 Pillow
 pandas
+=======
+# Main application framework
+streamlit
+
+# For making API calls to local AI servers
+requests
+
+# For handling and displaying images
+Pillow
+
+# For displaying database tables in the Database View page
+pandas
+
+# For loading API keys from .env file
+python-dotenv
+
+# For user authentication
+streamlit-authenticator
+
+# For background jobs and task queuing
+celery
+redis
+>>>>>>> b6b313d0c54c645a53cca8de60a8910751203cc7
