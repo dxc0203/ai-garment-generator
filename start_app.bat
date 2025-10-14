@@ -1,4 +1,5 @@
 @echo off
+
 title AI Garment Generator Launcher
 
 echo ===================================================
@@ -7,30 +8,40 @@ echo ===================================================
 echo.
 
 REM --- Configuration ---
-set LM_STUDIO_PATH="C:\Program Files\LM Studio\LM Studio.exe"
-set SD_WEBUI_DIR="C:\Users\alvin\OneDrive\Work\Python\stable-diffusion-webui"
+REM Removed LM Studio and Stable Diffusion paths
 REM --- End of Configuration ---
 
-
-echo [1/4] Launching LM Studio in a new window...
-start "LM Studio" %LM_STUDIO_PATH%
-
-echo [2/4] Launching Stable Diffusion WebUI in a new window...
-start "Stable Diffusion WebUI" /D %SD_WEBUI_DIR% webui-user.bat
+echo.
+echo [1/4] Checking Python installation...
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Python is not installed or not added to PATH. Please install Python 3.11 or later and try again.
+    pause
+    exit /b
+)
 
 echo.
-echo Waiting 5 seconds for AI servers to initialize...
-timeout /t 5 /nobreak >nul
-
-echo.
-echo [3/4] Activating virtual environment and checking for maintenance...
+echo [2/4] Activating virtual environment...
+if not exist .\.venv\Scripts\activate.bat (
+    echo Virtual environment not found. Creating one...
+    python -m venv .venv
+)
 call .\.venv\Scripts\activate.bat
-REM --- THIS IS THE NEW STEP ---
-REM Run the maintenance check script.
-python check_maintenance.py
 
 echo.
-echo [4/4] Launching the Streamlit App...
+echo [3/4] Updating pip...
+python -m pip install --upgrade pip
+
+echo.
+echo [4/4] Checking and installing required packages...
+if exist requirements.txt (
+    pip install -r requirements.txt
+) else (
+    echo "requirements.txt not found. Skipping package installation."
+)
+
+echo.
+echo Launching the Streamlit App...
 python -m streamlit run Home.py
 
 echo.

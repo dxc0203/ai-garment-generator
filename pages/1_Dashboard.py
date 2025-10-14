@@ -10,16 +10,14 @@ from PIL import Image
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import workflow_manager
-from app.translator import initialize_state, t, language_selector, display_model_status
+from app.translator import initialize_state
 
 # --- Initialize State and Translator ---
 initialize_state()
-language_selector()
-display_model_status()
 
-st.set_page_config(page_title=t("Task Dashboard"), layout="wide")
-st.title(f"📊 {t('Task Dashboard')}")
-st.markdown(t("Manage and review all generation tasks."))
+st.set_page_config(page_title="Task Dashboard", layout="wide")
+st.title(f"📊 Task Dashboard")
+st.markdown("Manage and review all generation tasks.")
 
 # --- Initialize session state ---
 if 'selected_tasks' not in st.session_state:
@@ -51,19 +49,19 @@ all_tasks = crud.get_all_tasks()
 unique_tags = crud.get_all_unique_tags()
 
 # --- Filter Bar ---
-st.subheader(t("Filters"))
+st.subheader("Filters")
 with st.container(border=True):
     col1, col2 = st.columns(2)
     with col1:
         active_status_filter = st.session_state.get('dashboard_filter', None)
         if active_status_filter:
-            st.info(f"{t('Filtering for status')}: **{t(active_status_filter.replace('_', ' ').title())}**")
-            if st.button(t("Clear Status Filter")):
+            st.info(f"Filtering for status: **{active_status_filter.replace('_', ' ').title()}**")
+            if st.button("Clear Status Filter"):
                 del st.session_state['dashboard_filter']
                 st.rerun()
     with col2:
         st.multiselect(
-            t("Filter by Tags"),
+            "Filter by Tags",
             options=unique_tags,
             key="tag_filter"
         )
@@ -91,36 +89,36 @@ if st.session_state.tag_filter:
 all_task_ids = [task['id'] for task in filtered_tasks]
 
 # --- Toolbar ---
-st.subheader(t("Bulk Actions"))
+st.subheader("Bulk Actions")
 t_col1, t_col2, t_col3, _ = st.columns([1, 2, 2, 6])
 with t_col1:
-    st.checkbox(t("Select All"), key="select_all_checkbox", on_change=toggle_all_tasks, args=(all_task_ids,))
+    st.checkbox("Select All", key="select_all_checkbox", on_change=toggle_all_tasks, args=(all_task_ids,))
 with t_col2:
-    if st.button(t("Delete Selected")):
+    if st.button("Delete Selected"):
         if st.session_state.selected_tasks:
             crud.delete_tasks_by_ids(list(st.session_state.selected_tasks))
-            st.success(t("Deleted {} tasks.").format(len(st.session_state.selected_tasks)))
+            st.success("Deleted {} tasks.".format(len(st.session_state.selected_tasks)))
             st.session_state.selected_tasks.clear()
             st.rerun()
         else:
-            st.warning(t("No tasks selected."))
+            st.warning("No tasks selected.")
 with t_col3:
-    if st.button(f"🚀 {t('Generate Selected')}", type="primary"):
+    if st.button(f"🚀 Generate Selected", type="primary"):
         if st.session_state.selected_tasks:
-            with st.spinner(t("Starting bulk generation... This may take a long time. Please wait.")):
+            with st.spinner("Starting bulk generation... This may take a long time. Please wait."):
                 result_message = workflow_manager.bulk_generate_images(list(st.session_state.selected_tasks))
-            st.success(t(result_message))
+            st.success(result_message)
             st.session_state.selected_tasks.clear()
             st.rerun()
         else:
-            st.warning(t("No tasks selected for generation."))
+            st.warning("No tasks selected for generation.")
 
 st.divider()
 
 # --- Task List ---
-st.subheader(f"{t('Displaying Tasks')} ({len(filtered_tasks)} of {len(all_tasks)} total)")
+st.subheader(f"Displaying Tasks ({len(filtered_tasks)} of {len(all_tasks)} total)")
 if not filtered_tasks:
-    st.info(t("No tasks match the current filters or no tasks exist."))
+    st.info("No tasks match the current filters or no tasks exist.")
 else:
     for task in filtered_tasks:
         task_id = task['id']
@@ -131,17 +129,17 @@ else:
                 st.checkbox("", value=(task_id in st.session_state.selected_tasks), key=f"select_{task_id}", on_change=toggle_task_selection, args=(task_id,))
             
             with c2:
-                st.subheader(f"{t('Product')}: {task.get('product_code', 'N/A')}")
+                st.subheader(f"Product: {task.get('product_code', 'N/A')}")
                 product_name = task.get('product_name')
                 if product_name:
-                    st.markdown(f"**{t('AI Name')}:** {product_name}")
+                    st.markdown(f"**AI Name**: {product_name}")
                 tags_str = task.get('product_tags')
                 if tags_str:
                     tags_dict = json.loads(tags_str)
                     tags_display = ", ".join(f"{k.title()}: {v}" for k, v in tags_dict.items())
-                    st.markdown(f"**{t('AI Tags')}:** {tags_display}")
-                st.text(f"{t('Task ID')}: {task_id} | {t('Created')}: {task.get('created_at', 'N/A')}")
-                st.markdown(f"**{t('Original Images')}:**")
+                    st.markdown(f"**AI Tags**: {tags_display}")
+                st.text(f"Task ID: {task_id} | Created: {task.get('created_at', 'N/A')}")
+                st.markdown(f"**Original Images**:")
                 image_paths_str = task.get('uploaded_image_paths', '')
                 if image_paths_str:
                     image_paths = image_paths_str.split(',')
@@ -153,37 +151,37 @@ else:
                                     st.image(Image.open(path), width=100)
                         except Exception: pass
                 else:
-                    st.caption(t("No original images."))
-                st.markdown(f"**{t('Spec Sheet')}:**")
-                spec_text = task.get('spec_sheet_text') or t("Not generated yet.")
+                    st.caption("No original images.")
+                st.markdown(f"**Spec Sheet**:")
+                spec_text = task.get('spec_sheet_text') or "Not generated yet."
                 st.text_area("", value=spec_text, height=100, disabled=True, key=f"spec_sheet_display_{task_id}")
 
             with c3:
-                st.markdown(f"**{t('Final Image')}:**")
+                st.markdown(f"**Final Image**:")
                 generated_path = task.get('generated_image_path')
                 if generated_path and os.path.exists(generated_path):
                     st.image(Image.open(generated_path), width=150)
                 else:
-                    st.caption(t("No final image yet"))
+                    st.caption("No final image yet")
             
             with c4:
-                st.markdown(f"**{t('Status')}:**")
+                st.markdown(f"**Status**:")
                 current_status_en = task.get('status', 'ERROR')
-                st.info(t(current_status_en.replace('_', ' ').title()))
-                st.markdown(f"**{t('Next Action')}:**")
+                st.info(current_status_en.replace('_', ' ').title())
+                st.markdown(f"**Next Action**:")
                 if current_status_en == 'PENDING_APPROVAL':
-                    if st.button(t("Review Spec Sheet"), key=f"action_{task_id}"):
+                    if st.button("Review Spec Sheet", key=f"action_{task_id}"):
                         st.session_state['current_task_id'] = task_id
                         st.switch_page("pages/3_Approval_View.py")
                 elif current_status_en == 'APPROVED':
-                    if st.button(t("Generate Photo"), key=f"action_{task_id}", type="primary"):
+                    if st.button("Generate Photo", key=f"action_{task_id}", type="primary"):
                         st.session_state['current_task_id'] = task_id
                         st.switch_page("pages/3_Approval_View.py")
                 elif current_status_en in ['PENDING_IMAGE_REVIEW', 'PENDING_REDO']:
-                    if st.button(t("Finalize Image"), key=f"action_{task_id}"):
+                    if st.button("Finalize Image", key=f"action_{task_id}"):
                         st.session_state['current_task_id'] = task_id
                         st.switch_page("pages/3_Approval_View.py")
                 elif current_status_en == 'GENERATING':
-                    st.warning(t("Processing..."))
+                    st.warning("Processing...")
                 else:
-                    st.caption(t("No further actions."))
+                    st.caption("No further actions.")

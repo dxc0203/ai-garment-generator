@@ -100,3 +100,57 @@ If not using the launcher, open a terminal in the project root, activate the vir
 python -m streamlit run Home.py
 
 The application will open in your web browser, ready to use.
+
+# AI Garment Generator - Setup and Launch Instructions
+
+## Prerequisites
+1. **Python Installation**:
+   - Ensure Python 3.11 or later is installed.
+   - Add Python to your system's PATH during installation.
+
+2. **Virtual Environment**:
+   - Create a virtual environment in the project directory:
+     ```powershell
+     python -m venv .venv
+     ```
+   - Activate the virtual environment:
+     ```powershell
+     .\.venv\Scripts\activate
+     ```
+
+3. **Update pip**:
+   - Upgrade pip to the latest version:
+     ```powershell
+     python -m pip install --upgrade pip
+     ```
+
+4. **Install Dependencies**:
+   - Ensure `requirements.txt` is free of invalid entries.
+   - Install required packages:
+     ```powershell
+     pip install -r requirements.txt
+     ```
+
+## Launching the Application
+1. **Run the Launcher**:
+   - Use the `start_app.bat` file to start the application:
+     ```powershell
+     .\start_app.bat
+     ```
+
+2. **Streamlit Application**:
+   - The application will open in your default web browser.
+
+## Troubleshooting
+1. **Virtual Environment Issues**:
+   - If the virtual environment is missing, recreate it using the steps above.
+
+2. **Dependency Errors**:
+   - Check `requirements.txt` for invalid entries.
+   - Ensure all required packages are listed.
+
+3. **Updating Dependencies**:
+   - If new dependencies are added, update `requirements.txt`:
+     ```powershell
+     pip freeze > requirements.txt
+     ```

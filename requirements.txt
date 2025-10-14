@@ -1,11 +1,4 @@
-Main application framework
 streamlit
-
-For making API calls to local AI servers
 requests
-
-For handling and displaying images
 Pillow
-
-For displaying database tables in the Database View page
 pandas
