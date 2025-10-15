@@ -1,0 +1,21 @@
+# Python virtual environment
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Local database file - Do not back up the data itself
+data/main.db
+
+# User-uploaded images and AI-generated outputs
+uploads/
+outputs/
+
+# IDE and OS specific files
+.vscode/
+.idea/
+.DS_Store
+
+# Secret keys
+.env

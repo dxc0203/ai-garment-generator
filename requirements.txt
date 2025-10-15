@@ -1,28 +1,21 @@
-<<<<<<< HEAD
-streamlit
-requests
-Pillow
-pandas
-=======
 # Main application framework
-streamlit
+streamlit==1.28.0
 
 # For making API calls to local AI servers
-requests
+requests==2.31.0
 
 # For handling and displaying images
-Pillow
+Pillow==10.2.0
 
 # For displaying database tables in the Database View page
-pandas
+pandas==2.2.1
 
 # For loading API keys from .env file
-python-dotenv
+python-dotenv==1.0.1
 
 # For user authentication
-streamlit-authenticator
+streamlit-authenticator==0.2.3
 
 # For background jobs and task queuing
-celery
-redis
->>>>>>> b6b313d0c54c645a53cca8de60a8910751203cc7
+celery==5.3.6
+redis==5.0.1

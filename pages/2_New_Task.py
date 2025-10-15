@@ -11,11 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import ai_services
 from app.config import UPLOADS_DIR, SPEC_SHEET_PROMPT_DIR, NAME_TAG_PROMPT_DIR
-from app.translator import initialize_state
 
-
-# --- Initialize State and Translator ---
-initialize_state()
 
 # --- Helper Functions ---
 def get_prompt_files(prompt_dir):
@@ -182,14 +178,14 @@ st.divider()
 
 # --- Preview Area ---
 if st.session_state.preview_data:
-    with st.container(border=True):
+    with st.container():
         st.markdown(f"#### {'Generated Data Preview'}")
         st.text_input("Product Name", value=st.session_state.preview_data.get('name'), disabled=True)
         st.text_input("Tags", value=json.dumps(st.session_state.preview_data.get('tags')), disabled=True)
         st.text_area("Spec Sheet", value=st.session_state.preview_data.get('spec_sheet'), height=250, disabled=True)
 
 # --- Log Display Area ---
-log_container = st.container(border=True)
+log_container = st.container()
 with log_container:
     st.markdown(f"#### {'Process Log'}")
     for msg_type, msg in st.session_state.log_messages:

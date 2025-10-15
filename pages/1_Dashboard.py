@@ -10,11 +10,8 @@ from PIL import Image
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import workflow_manager
-from app.translator import initialize_state
 
-# --- Initialize State and Translator ---
-initialize_state()
-
+# --- Initialize State ---
 st.set_page_config(page_title="Task Dashboard", layout="wide")
 st.title(f"📊 Task Dashboard")
 st.markdown("Manage and review all generation tasks.")
@@ -50,7 +47,7 @@ unique_tags = crud.get_all_unique_tags()
 
 # --- Filter Bar ---
 st.subheader("Filters")
-with st.container(border=True):
+with st.container():
     col1, col2 = st.columns(2)
     with col1:
         active_status_filter = st.session_state.get('dashboard_filter', None)
@@ -122,7 +119,7 @@ if not filtered_tasks:
 else:
     for task in filtered_tasks:
         task_id = task['id']
-        with st.container(border=True):
+        with st.container():
             c1, c2, c3, c4 = st.columns([0.5, 3, 1.5, 2])
             
             with c1:

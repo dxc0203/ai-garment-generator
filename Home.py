@@ -8,10 +8,8 @@ from collections import Counter
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
 from app.database import crud
-from app.translator import initialize_state
 
 # --- Initialize State, Language, and Model Status ---
-initialize_state()
 
 # --- Page Config ---
 st.set_page_config(
@@ -51,7 +49,7 @@ try:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        with st.container(border=True):
+        with st.container():
             st.markdown(f"#### {'Prompt Stage'}")
             st.caption('Tasks related to spec sheet creation and approval.')
             for status, color in prompt_stage_statuses.items():
@@ -61,7 +59,7 @@ try:
                 st.markdown(f"<hr style='margin-top: -10px; border-top: 3px solid {color};'>", unsafe_allow_html=True)
 
     with col2:
-        with st.container(border=True):
+        with st.container():
             st.markdown(f"#### {'Photo Stage'}")
             st.caption('Tasks related to image generation and review.')
             for status, color in photo_stage_statuses.items():
@@ -71,7 +69,7 @@ try:
                 st.markdown(f"<hr style='margin-top: -10px; border-top: 3px solid {color};'>", unsafe_allow_html=True)
 
     with col3:
-        with st.container(border=True):
+        with st.container():
             st.markdown(f"#### {'Finalized Tasks'}")
             st.caption('Tasks that are completed or have exited the workflow.')
             for status, color in finalized_statuses.items():
@@ -90,14 +88,14 @@ st.subheader("How to Get Started")
 guide_col1, guide_col2 = st.columns(2)
 
 with guide_col1:
-    with st.container(border=True):
+    with st.container():
         st.markdown(f"#### 1. {'Create a New Task'}")
         st.write('Navigate to the New Task page from the sidebar to begin.')
         if st.button('Go to New Task Page'):
             st.switch_page("pages/2_New_Task.py")
 
 with guide_col2:
-    with st.container(border=True):
+    with st.container():
         st.markdown(f"#### 2. {'Manage and Approve Tasks'}")
         st.write('Navigate to the Dashboard page to see all tasks.')
         if st.button('Go to Dashboard'):

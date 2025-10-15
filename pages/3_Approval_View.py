@@ -8,11 +8,8 @@ from PIL import Image
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import ai_services
-from app.translator import initialize_state
 
-# --- Initialize State and Translator ---
-initialize_state()
-
+# --- Initialize State ---
 st.set_page_config(page_title="Review & Generate", layout="wide")
 st.title(f"🔍 Review, Generate, and Finalize")
 

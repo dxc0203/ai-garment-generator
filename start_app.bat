@@ -37,7 +37,7 @@ echo [4/4] Checking and installing required packages...
 if exist requirements.txt (
     pip install -r requirements.txt
 ) else (
-    echo "requirements.txt not found. Skipping package installation."
+    echo requirements.txt not found. Skipping package installation.
 )
 
 echo.
