@@ -2,6 +2,7 @@
 import streamlit as st
 import os
 import sys
+<<<<<<< HEAD
 import logging
 from dotenv import load_dotenv
 from app.core import ai_services
@@ -13,6 +14,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.core import ai_services
 from app.settings_manager import load_settings, save_settings
 from app.validation import validate_model_name
+=======
+from dotenv import load_dotenv, dotenv_values, set_key
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app.core import ai_services
+from app.settings_manager import load_settings, save_settings
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
 
 load_dotenv()
 
@@ -47,6 +54,7 @@ else:
 with st.form("settings_form"):
     submitted = st.form_submit_button("Save All Settings")
     if submitted:
+<<<<<<< HEAD
         # Validate model names
         vision_valid, vision_error = validate_model_name(vision_model_input)
         lang_valid, lang_error = validate_model_name(lang_model_input)
@@ -69,3 +77,17 @@ with st.form("settings_form"):
             save_settings(new_settings)
             st.success("Settings saved successfully!")
             logger.info(f"Settings updated: vision_model={vision_model_input}, language_model={lang_model_input}")
+=======
+        new_settings = {
+            "vision_service": {
+                "provider": "openai",
+                "model": vision_model_input
+            },
+            "language_service": {
+                "provider": "openai",
+                "model": lang_model_input
+            }
+        }
+        save_settings(new_settings)
+        st.success("Settings saved successfully!")
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649

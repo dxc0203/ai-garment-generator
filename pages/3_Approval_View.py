@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
 from app.core import ai_services
+<<<<<<< HEAD
 from app.validation import validate_redo_instructions
+=======
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
 
 # --- Initialize State ---
 st.set_page_config(page_title="Review & Generate", layout="wide")
@@ -22,14 +25,20 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
     task = crud.get_task_by_id(task_id)
 
     if not task:
+<<<<<<< HEAD
         logger.warning(f"Task {task_id} not found, resetting session")
+=======
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
         st.error("Could not find Task ID: {}. It may have been deleted.".format(task_id))
         st.warning("Resetting session and returning to the dashboard.")
         st.session_state['current_task_id'] = None
         if st.button("Go to Dashboard"):
             st.switch_page("pages/1_Dashboard.py")
     else:
+<<<<<<< HEAD
         logger.info(f"Loaded task {task_id} for approval/review")
+=======
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
         st.header(f"Working on Task ID: {task_id} for Product: {task.get('product_code', 'N/A')}")
         
         # --- UI for PENDING_APPROVAL status ---
@@ -91,6 +100,7 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
                 final_prompt = f"{base_model_prompt}, {task.get('spec_sheet_text', '')}"
                 st.text_area("This prompt will be sent to the image generation AI:", value=final_prompt, height=400, disabled=True)
             st.divider()
+<<<<<<< HEAD
             # --- Model and Test Mode Selection ---
             st.markdown('---')
             st.subheader('Image Generation Settings')
@@ -101,6 +111,8 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
             ]
             selected_model = st.selectbox("Select AI Model for Image Generation", model_options, index=0)
             test_mode = selected_model == "[TEST MODE]"
+=======
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
             if st.button(f"🚀 Generate On-Model Photo", type="primary"):
                 crud.update_task_status(task_id, 'GENERATING')
                 st.session_state['image_gen_model'] = selected_model
@@ -108,7 +120,11 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
                 st.rerun()
 
         elif task['status'] == 'GENERATING':
+<<<<<<< HEAD
             st.info(f"⚙️ Calling OpenAI Vision Model... This can take up to a minute. Please do not navigate away from this page.")
+=======
+            st.info(f"⚙️ Calling Stable Diffusion... This can take up to a minute. Please do not navigate away from this page.")
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
             with st.spinner("Generating image..."):
                 base_model_prompt = "professional photograph of a female model wearing the garment, full body shot, studio lighting, hyperrealistic, 8k"
                 final_prompt = f"{base_model_prompt}, {task.get('spec_sheet_text', '')}"
@@ -143,12 +159,16 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
                 st.session_state['current_task_id'] = None
                 st.switch_page("pages/1_Dashboard.py")
             if r_col2.button(f"🔄 Request Redo"):
+<<<<<<< HEAD
                 # Validate redo instructions
                 is_valid, validation_error = validate_redo_instructions(redo_prompt)
                 if not is_valid:
                     st.error(f"Validation Error: {validation_error}")
                     logger.warning(f"Redo instructions validation failed: {validation_error}")
                 elif not redo_prompt:
+=======
+                if not redo_prompt:
+>>>>>>> 80d1d33b4f0e4ce42c4f3209c7aca0b5659f6649
                     st.warning("Please provide instructions for the redo.")
                 else:
                     logger.info(f"User requested redo for task {task_id} with instructions: {redo_prompt}")

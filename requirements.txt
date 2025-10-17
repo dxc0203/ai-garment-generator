@@ -1,11 +1,21 @@
-Main application framework
-streamlit
+# Main application framework
+streamlit==1.28.0
 
-For making API calls to local AI servers
-requests
+# For making API calls to local AI servers
+requests==2.31.0
 
-For handling and displaying images
-Pillow
+# For handling and displaying images
+Pillow==10.2.0
 
-For displaying database tables in the Database View page
-pandas
+# For displaying database tables in the Database View page
+pandas==2.2.1
+
+# For loading API keys from .env file
+python-dotenv==1.0.1
+
+# For user authentication
+streamlit-authenticator==0.2.3
+
+# For background jobs and task queuing
+celery==5.3.6
+redis==5.0.1

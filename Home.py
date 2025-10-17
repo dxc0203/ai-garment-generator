@@ -20,9 +20,12 @@ st.set_page_config(
 
 # --- Main Page Content ---
 st.title("Welcome to the AI Garment Generator 🤖")
+st.title("Welcome to the AI Garment Generator 🤖")
 st.markdown("---")
 st.markdown("This internal tool automates the creation of standardized, on-model product imagery for our e-commerce platform.")
+st.markdown("This internal tool automates the creation of standardized, on-model product imagery for our e-commerce platform.")
 
+st.subheader("System Status Overview")
 st.subheader("System Status Overview")
 
 def set_filter_and_switch(status_filter):
@@ -52,8 +55,12 @@ try:
         with st.container():
             st.markdown(f"#### {'Prompt Stage'}")
             st.caption('Tasks related to spec sheet creation and approval.')
+        with st.container():
+            st.markdown(f"#### {'Prompt Stage'}")
+            st.caption('Tasks related to spec sheet creation and approval.')
             for status, color in prompt_stage_statuses.items():
                 count = status_counts.get(status, 0)
+                if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                 if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                     set_filter_and_switch(status)
                 st.markdown(f"<hr style='margin-top: -10px; border-top: 3px solid {color};'>", unsafe_allow_html=True)
@@ -62,8 +69,12 @@ try:
         with st.container():
             st.markdown(f"#### {'Photo Stage'}")
             st.caption('Tasks related to image generation and review.')
+        with st.container():
+            st.markdown(f"#### {'Photo Stage'}")
+            st.caption('Tasks related to image generation and review.')
             for status, color in photo_stage_statuses.items():
                 count = status_counts.get(status, 0)
+                if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                 if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                     set_filter_and_switch(status)
                 st.markdown(f"<hr style='margin-top: -10px; border-top: 3px solid {color};'>", unsafe_allow_html=True)
@@ -72,8 +83,12 @@ try:
         with st.container():
             st.markdown(f"#### {'Finalized Tasks'}")
             st.caption('Tasks that are completed or have exited the workflow.')
+        with st.container():
+            st.markdown(f"#### {'Finalized Tasks'}")
+            st.caption('Tasks that are completed or have exited the workflow.')
             for status, color in finalized_statuses.items():
                 count = status_counts.get(status, 0)
+                if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                 if st.button(f"{status.replace('_', ' ').title()}: {count}", key=f"status_btn_{status}", use_container_width=True):
                     set_filter_and_switch(status)
                 st.markdown(f"<hr style='margin-top: -10px; border-top: 3px solid {color};'>", unsafe_allow_html=True)
@@ -83,6 +98,7 @@ except Exception as e:
 
 st.markdown("---")
 
+st.subheader("How to Get Started")
 st.subheader("How to Get Started")
 
 guide_col1, guide_col2 = st.columns(2)
@@ -95,6 +111,10 @@ with guide_col1:
             st.switch_page('pages/2_New_Task.py')
 
 with guide_col2:
+    with st.container():
+        st.markdown(f"#### 2. {'Manage and Approve Tasks'}")
+        st.write('Navigate to the Dashboard page to see all tasks.')
+        if st.button('Go to Dashboard'):
     with st.container():
         st.markdown(f"#### 2. {'Manage and Approve Tasks'}")
         st.write('Navigate to the Dashboard page to see all tasks.')
