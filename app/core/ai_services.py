@@ -1,138 +1,94 @@
 # File: app/core/ai_services.py
 
-import requests
-import json
-import base64
+import openai
+from openai import OpenAI
 import os
-import time
-from app.config import LM_STUDIO_API_URL, STABLE_DIFFUSION_API_URL, OUTPUTS_DIR
-from app.settings_manager import load_settings
+from dotenv import load_dotenv
+import base64
+from app.config import logger, DATABASE_PATH
 
-# --- 辅助函数 ---
-def encode_image_to_base64(filepath):
-    try:
-        with open(filepath, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
-    except FileNotFoundError: return None
+# Load environment variables from .env file
+load_dotenv()
 
-def get_file_mime_type(filepath):
-    ext = os.path.splitext(filepath)[1].lower()
-    return "image/png" if ext == ".png" else "image/jpeg"
+client = OpenAI()
 
-# --- 针对不同服务商的函数 ---
+def encode_image(image_path):
+    """
+    Encode an image to a Base64 string.
+    """
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
-def _call_local_vision_model(prompt_text: str, image_paths: list, model_name: str):
-    """调用本地LM Studio服务器执行视觉任务"""
-    content_parts = [{"type": "text", "text": prompt_text}]
-    for image_path in image_paths:
-        base64_image = encode_image_to_base64(image_path)
-        if base64_image:
-            mime_type = get_file_mime_type(image_path)
-            content_parts.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:{mime_type};base64,{base64_image}"}
-            })
+def call_ai_service(user_message, task_id=None, model="gpt-4o", image_path=None, test_mode=False):
+    """
+    Call the AI service with a user message, optional task ID for context, model selection, optional image input, and test mode.
+    If test_mode is True, return a mock response for testing purposes.
+    """
+    import sqlite3
     
-    headers = {"Content-Type": "application/json"}
-    data = {"model": model_name, "messages": [{"role": "user", "content": content_parts}], "max_tokens": 1000}
+    logger.info(f"AI service called with model: {model}, task_id: {task_id}, test_mode: {test_mode}, has_image: {image_path is not None}")
     
-    try:
-        response = requests.post(LM_STUDIO_API_URL, headers=headers, data=json.dumps(data))
-        response.raise_for_status()
-        return response.json()['choices'][0]['message']['content']
-    except requests.exceptions.RequestException as e:
-        return f"Error: {e}"
+    if test_mode:
+        # Return a mock response for testing
+        response = f"[TEST MODE] AI response for prompt: '{user_message}' using model: {model}"
+        if image_path:
+            response = f"[TEST MODE] Spec sheet generated for image '{image_path}' with prompt: '{user_message}' using model: {model}"
+        logger.info(f"Test mode response: {response}")
+        return response
 
-def _call_online_vision_model(prompt_text: str, image_paths: list, model_name: str, provider: str):
-    """一个用于调用任何在线视觉模型的通用占位函数"""
-    api_key_name = f"{provider.upper()}_API_KEY"
-    api_key = os.getenv(api_key_name)
-    if not api_key:
-        return f"Error: {api_key_name} not found in .env file."
-    
-    return f"Placeholder: Would call {provider.title()} model '{model_name}' with the provided images."
+    # Prepare the conversation history if task_id is provided
+    conversation_history = []
+    if task_id:
+        try:
+            conn = sqlite3.connect(DATABASE_PATH)
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_message, ai_response FROM chat_history WHERE task_id = ?", (task_id,))
+            conversation_history = cursor.fetchall()
+            conn.close()
+            logger.debug(f"Retrieved {len(conversation_history)} conversation history items for task {task_id}")
+        except sqlite3.Error as e:
+            logger.error(f"Database error retrieving conversation history: {e}")
+            raise RuntimeError(f"Failed to retrieve conversation history: {e}")
 
-# --- 主要的路由函数 ---
+    # Format the conversation for the AI
+    messages = []
+    for user_msg, ai_resp in conversation_history:
+        messages.append({"role": "user", "content": user_msg})
+        messages.append({"role": "assistant", "content": ai_resp})
 
-def get_spec_from_image(image_paths: list, prompt_text: str):
-    """用于获取规格表的主路由函数"""
-    settings = load_settings()
-    service_config = settings.get("vision_service", {})
-    provider = service_config.get("provider")
-    model = service_config.get("model")
-
-    if not provider or not model:
-        return "Error: Vision service not configured in Settings."
-
-    if provider == "local":
-        return _call_local_vision_model(prompt_text, image_paths, model)
-    elif provider in ["google", "openai", "anthropic"]:
-        return _call_online_vision_model(prompt_text, image_paths, model, provider)
+    # Add the new user message
+    if image_path:
+        try:
+            base64_image = encode_image(image_path)
+            user_content = [
+                {"type": "text", "text": user_message},
+                {"type": "image_url", "image_url": f"data:image/jpeg;base64,{base64_image}"},
+            ]
+            logger.debug(f"Encoded image for task {task_id}")
+        except Exception as e:
+            logger.error(f"Failed to encode image {image_path}: {e}")
+            raise RuntimeError(f"Failed to process image: {e}")
     else:
-        return f"Error: Unknown vision provider '{provider}'."
+        user_content = user_message
 
-def get_name_and_tags_from_image(image_paths: list, prompt_text: str):
-    """用于获取产品名称和标签的主路由函数"""
-    settings = load_settings()
-    service_config = settings.get("vision_service", {})
-    provider = service_config.get("provider")
-    model = service_config.get("model")
+    messages.append({"role": "user", "content": user_content})
 
-    if not provider or not model:
-        return {"product_name": "Error", "tags": {"error": "Vision service not configured"}}
-
-    raw_response = "Error: Provider not configured"
-    if provider == "local":
-        raw_response = _call_local_vision_model(prompt_text, image_paths, model)
-    elif provider in ["google", "openai", "anthropic"]:
-        raw_response = _call_online_vision_model(prompt_text, image_paths, model, provider)
-
+    # Call OpenAI API using the specified model
     try:
-        cleaned_response = raw_response.strip().replace("```json", "").replace("```", "")
-        return json.loads(cleaned_response)
-    except (json.JSONDecodeError, TypeError):
-        return {"product_name": "AI Parsing Error", "tags": {}}
-
-def get_available_lm_studio_models():
-    try:
-        models_url = LM_STUDIO_API_URL.replace("/chat/completions", "/models")
-        response = requests.get(models_url)
-        response.raise_for_status()
-        models_data = response.json()
-        return [model['id'] for model in models_data['data']]
-    except requests.exceptions.RequestException:
-        return []
-
-# --- Stable Diffusion 服务 (未改变) ---
-def generate_image_from_prompt(prompt: str, product_code: str):
-    payload = {
-        "prompt": prompt,
-        "negative_prompt": "deformed, bad anatomy, disfigured, poorly drawn face, mutation, mutated, extra limb, ugly, disgusting, poorly drawn hands, missing limb, floating limbs, disconnected limbs, malformed hands, blurry, ((((mutated hands and fingers)))), watermark, watermarked, oversaturated, censored, distorted hands, amputation, missing hands, obese, doubled face, double hands, text, error",
-        "seed": -1,
-        "steps": 25,
-        "cfg_scale": 6,
-        "width": 896,
-        "height": 1152,
-        "sampler_name": "DPM++ 2M Karras",
-        "override_settings": {
-            "sd_model_checkpoint": "RealVisXL_V4.0.safetensors"
-        }
-    }
-    try:
-        response = requests.post(url=STABLE_DIFFUSION_API_URL, json=payload)
-        response.raise_for_status()
-        r = response.json()
-        if 'images' in r and r['images']:
-            image_data = base64.b64decode(r['images'][0])
-            os.makedirs(OUTPUTS_DIR, exist_ok=True)
-            timestamp = int(time.time())
-            output_filename = f"{product_code}_generated_{timestamp}.png"
-            output_path = os.path.join(OUTPUTS_DIR, output_filename)
-            with open(output_path, 'wb') as f:
-                f.write(image_data)
-            return output_path
-        else:
-            error_info = r.get('info', 'No image data received from the API.')
-            return f"Error: {error_info}"
-    except requests.exceptions.RequestException as e:
-        return f"Error: Could not connect to Stable Diffusion API. {e}"
+        logger.info(f"Making OpenAI API call with model {model}")
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages
+        )
+        ai_response = response.choices[0].message.content
+        logger.info(f"OpenAI API call successful, response length: {len(ai_response)}")
+        return ai_response
+    except openai.APIError as e:
+        logger.error(f"OpenAI API error: {e}")
+        raise RuntimeError(f"Failed to call OpenAI API: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in AI service: {e}")
+        raise RuntimeError(f"Unexpected error: {e}")
+    
+# Example usage:
+# response = call_ai_service("Generate a spec sheet for the uploaded image.", task_id=123, image_path="/path/to/image.jpg")

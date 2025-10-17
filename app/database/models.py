@@ -1,5 +1,4 @@
 # File: app/database/models.py
-
 import sqlite3
 
 DATABASE_NAME = "data/main.db"
@@ -13,6 +12,18 @@ def create_connection():
     except sqlite3.Error as e:
         print(e)
     return conn
+
+# Add a new table for chat history
+CHAT_HISTORY_TABLE = """
+CREATE TABLE IF NOT EXISTS chat_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id INTEGER NOT NULL,
+    user_message TEXT NOT NULL,
+    ai_response TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks (id)
+);
+"""
 
 def create_tables():
     """Create all necessary database tables if they don't exist."""
@@ -39,8 +50,8 @@ def create_tables():
             );
             """)
             print("SQLite 'tasks' table checked/created successfully.")
-
-            # --- other tables (no changes) ---
+            
+            # --- spec_sheet_versions table ---
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS spec_sheet_versions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,18 +66,24 @@ def create_tables():
             print("SQLite 'spec_sheet_versions' table checked/created successfully.")
 
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS translations (
+            CREATE TABLE IF NOT EXISTS interactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                lang_code TEXT NOT NULL,
-                source_text TEXT NOT NULL,
-                translated_text TEXT NOT NULL,
+                task_id INTEGER,
+                step_name TEXT,
+                user_input TEXT,
+                ai_prompt TEXT,
+                ai_response TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(lang_code, source_text)
+                context TEXT,
+                FOREIGN KEY (task_id) REFERENCES tasks (id)
             );
             """)
-            print("SQLite 'translations' table checked/created successfully.")
+            print("SQLite 'interactions' table checked/created successfully.")
 
+            # Create chat history table
+            cursor.execute(CHAT_HISTORY_TABLE)
+            print("SQLite 'chat_history' table checked/created successfully.")
+            
         except sqlite3.Error as e:
             print(f"An error occurred while creating tables: {e}")
         finally:
@@ -74,6 +91,16 @@ def create_tables():
     else:
         print("Error! Cannot create the database connection.")
 
-if __name__ == '__main__':
-    # To apply this change, delete the old main.db file and run this script.
+# Ensure the database is initialized when this module is imported
+try:
     create_tables()
+except Exception as e:
+    print(f"An error occurred while initializing the database: {e}")
+
+if __name__ == "__main__":
+    print("Initializing database...")
+    try:
+        create_tables()
+        print("Database initialized successfully.")
+    except Exception as e:
+        print(f"An error occurred during database initialization: {e}")
