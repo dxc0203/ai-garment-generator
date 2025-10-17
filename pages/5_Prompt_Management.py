@@ -3,6 +3,9 @@
 import streamlit as st
 import os
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

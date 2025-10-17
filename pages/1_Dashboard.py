@@ -4,8 +4,12 @@ import streamlit as st
 import os
 import sys
 import json
+import logging
 from PIL import Image
+from streamlit_extras.switch_page_button import switch_page
 
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database import crud
@@ -23,6 +27,10 @@ if 'tag_filter' not in st.session_state:
     st.session_state.tag_filter = []
 
 # --- Callback Functions ---
+def format_status(status):
+    """Format status string for display."""
+    return status.replace('_', ' ').title() if status else "Unknown"
+
 def update_status(task_id, status_map):
     translated_status = st.session_state.get(f"status_select_{task_id}")
     if translated_status:
@@ -44,6 +52,7 @@ def toggle_all_tasks(all_ids):
 # --- Fetch all tasks and unique tags ---
 all_tasks = crud.get_all_tasks()
 unique_tags = crud.get_all_unique_tags()
+logger.info(f"Dashboard loaded with {len(all_tasks)} tasks and {len(unique_tags)} unique tags")
 
 # --- Filter Bar ---
 st.subheader("Filters")
@@ -52,7 +61,7 @@ with st.container():
     with col1:
         active_status_filter = st.session_state.get('dashboard_filter', None)
         if active_status_filter:
-            st.info(f"Filtering for status: **{active_status_filter.replace('_', ' ').title()}**")
+            st.info(f"Filtering for status: **{format_status(active_status_filter)}**")
             if st.button("Clear Status Filter"):
                 del st.session_state['dashboard_filter']
                 st.rerun()
@@ -93,6 +102,7 @@ with t_col1:
 with t_col2:
     if st.button("Delete Selected"):
         if st.session_state.selected_tasks:
+            logger.info(f"User initiated bulk delete of {len(st.session_state.selected_tasks)} tasks")
             crud.delete_tasks_by_ids(list(st.session_state.selected_tasks))
             st.success("Deleted {} tasks.".format(len(st.session_state.selected_tasks)))
             st.session_state.selected_tasks.clear()
@@ -102,6 +112,7 @@ with t_col2:
 with t_col3:
     if st.button(f"🚀 Generate Selected", type="primary"):
         if st.session_state.selected_tasks:
+            logger.info(f"User initiated bulk image generation for {len(st.session_state.selected_tasks)} tasks")
             with st.spinner("Starting bulk generation... This may take a long time. Please wait."):
                 result_message = workflow_manager.bulk_generate_images(list(st.session_state.selected_tasks))
             st.success(result_message)
@@ -151,7 +162,7 @@ else:
                     st.caption("No original images.")
                 st.markdown(f"**Spec Sheet**:")
                 spec_text = task.get('spec_sheet_text') or "Not generated yet."
-                st.text_area("", value=spec_text, height=100, disabled=True, key=f"spec_sheet_display_{task_id}")
+                st.text_area("Spec Sheet", value=spec_text, height=100, disabled=True, key=f"spec_sheet_display_{task_id}")
 
             with c3:
                 st.markdown(f"**Final Image**:")
@@ -162,23 +173,20 @@ else:
                     st.caption("No final image yet")
             
             with c4:
-                st.markdown(f"**Status**:")
-                current_status_en = task.get('status', 'ERROR')
-                st.info(current_status_en.replace('_', ' ').title())
-                st.markdown(f"**Next Action**:")
-                if current_status_en == 'PENDING_APPROVAL':
-                    if st.button("Review Spec Sheet", key=f"action_{task_id}"):
+                current_status = task.get('status')
+                if current_status == 'PENDING_APPROVAL':
+                    if st.button("Review Spec Sheet", key=f"action_review_{task_id}"):
                         st.session_state['current_task_id'] = task_id
                         st.switch_page("pages/3_Approval_View.py")
-                elif current_status_en == 'APPROVED':
-                    if st.button("Generate Photo", key=f"action_{task_id}", type="primary"):
+                elif current_status == 'APPROVED':
+                    if st.button("Generate Photo", key=f"action_generate_{task_id}", type="primary"):
+                        st.session_state['current_task_id'] = task_id
+                        # st.switch_page("pages/3_Approval_View.py")
+                elif current_status in ['PENDING_IMAGE_REVIEW', 'PENDING_REDO']:
+                    if st.button("Finalize Image", key=f"action_finalize_{task_id}"):
                         st.session_state['current_task_id'] = task_id
                         st.switch_page("pages/3_Approval_View.py")
-                elif current_status_en in ['PENDING_IMAGE_REVIEW', 'PENDING_REDO']:
-                    if st.button("Finalize Image", key=f"action_{task_id}"):
-                        st.session_state['current_task_id'] = task_id
-                        st.switch_page("pages/3_Approval_View.py")
-                elif current_status_en == 'GENERATING':
+                elif current_status == 'GENERATING':
                     st.warning("Processing...")
                 else:
                     st.caption("No further actions.")

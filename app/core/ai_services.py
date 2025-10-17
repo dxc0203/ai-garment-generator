@@ -91,4 +91,4 @@ def call_ai_service(user_message, task_id=None, model="gpt-4o", image_path=None,
         raise RuntimeError(f"Unexpected error: {e}")
     
 # Example usage:
-# response = call_ai_service("Generate a spec sheet for the uploaded image.", task_id=123, image_path="/path/to/image.jpg")
+# response = call_ai_service("Generate a spec sheet for the uploaded image.", task_id=123, image_path="/path/to/image.jpg") 

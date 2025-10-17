@@ -5,6 +5,9 @@ import pandas as pd
 import sqlite3
 import os
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.database.models import DATABASE_NAME, create_tables

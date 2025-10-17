@@ -92,7 +92,7 @@ with guide_col1:
         st.markdown(f"#### 1. {'Create a New Task'}")
         st.write('Navigate to the New Task page from the sidebar to begin.')
         if st.button('Go to New Task Page'):
-            st.switch_page("pages/2_New_Task.py")
+            st.switch_page('pages/2_New_Task.py')
 
 with guide_col2:
     with st.container():
