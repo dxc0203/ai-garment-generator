@@ -49,6 +49,8 @@ if not versions_df.empty:
 else:
     st.info("The 'spec_sheet_versions' table is currently empty.")
 
+st.divider()
+
 # --- Display the 'chat_history' table ---
 st.subheader("Chat History Table")
 st.markdown("This table contains the chat history for each task.")
@@ -57,6 +59,8 @@ if not chat_history_df.empty:
     st.dataframe(chat_history_df, use_container_width=True)
 else:
     st.info("The 'chat_history' table is currently empty.")
+
+st.divider()
 
 # --- Ensure Database Initialization ---
 st.subheader("Database Initialization")

@@ -22,3 +22,4 @@ redis==5.0.1
 
 # For OpenAI API integration
 openai==1.3.0
+# Note: httpx proxy issue resolved with monkey patch in ai_services.py

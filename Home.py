@@ -28,11 +28,20 @@ st.title("Welcome to the AI Garment Generator 🤖")
 st.markdown("---")
 st.markdown("This internal tool automates the creation of standardized, on-model product imagery for our e-commerce platform.")
 
+# Handle navigation
+if 'navigate_to' in st.session_state:
+    if st.session_state['navigate_to'] == 'dashboard':
+        st.switch_page("pages/1_Dashboard.py")
+    elif st.session_state['navigate_to'] == 'new_task':
+        st.switch_page("pages/2_New_Task.py")
+    del st.session_state['navigate_to']
+
 st.subheader("System Status Overview")
 
 def set_filter_and_switch(status_filter):
     st.session_state['dashboard_filter'] = status_filter
-    st.switch_page("pages/1_Dashboard.py")
+    st.session_state['navigate_to'] = 'dashboard'
+    st.rerun()
 
 try:
     all_tasks = crud.get_all_tasks()
@@ -97,7 +106,8 @@ with guide_col1:
         st.markdown(f"#### 1. Create a New Task")
         st.write('Navigate to the New Task page from the sidebar to begin.')
         if st.button('Go to New Task Page'):
-            st.switch_page("pages/2_New_Task.py")
+            st.session_state['navigate_to'] = 'new_task'
+            st.rerun()
 
 with guide_col2:
     with st.container():
@@ -106,4 +116,5 @@ with guide_col2:
         if st.button('Go to Dashboard'):
             if 'dashboard_filter' in st.session_state:
                 del st.session_state['dashboard_filter']
-            st.switch_page("pages/1_Dashboard.py")
+            st.session_state['navigate_to'] = 'dashboard'
+            st.rerun()

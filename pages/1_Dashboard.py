@@ -16,6 +16,12 @@ st.set_page_config(page_title="Task Dashboard", layout="wide")
 st.title(f"📊 Task Dashboard")
 st.markdown("Manage and review all generation tasks.")
 
+# Handle navigation
+if 'navigate_to' in st.session_state:
+    if st.session_state['navigate_to'] == 'approval_view':
+        st.switch_page("pages/3_Approval_View.py")
+    del st.session_state['navigate_to']
+
 # --- Initialize session state ---
 if 'selected_tasks' not in st.session_state:
     st.session_state.selected_tasks = set()
@@ -151,7 +157,7 @@ else:
                     st.caption("No original images.")
                 st.markdown(f"**Spec Sheet**:")
                 spec_text = task.get('spec_sheet_text') or "Not generated yet."
-                st.text_area("", value=spec_text, height=100, disabled=True, key=f"spec_sheet_display_{task_id}")
+                st.text_area("Spec Sheet", value=spec_text, height=100, disabled=True, key=f"spec_sheet_display_{task_id}", label_visibility="hidden")
 
             with c3:
                 st.markdown(f"**Final Image**:")
@@ -169,16 +175,24 @@ else:
                 if current_status_en == 'PENDING_APPROVAL':
                     if st.button("Review Spec Sheet", key=f"action_{task_id}"):
                         st.session_state['current_task_id'] = task_id
-                        st.switch_page("pages/3_Approval_View.py")
+                        st.session_state['navigate_to'] = 'approval_view'
+                        st.rerun()
                 elif current_status_en == 'APPROVED':
                     if st.button("Generate Photo", key=f"action_{task_id}", type="primary"):
                         st.session_state['current_task_id'] = task_id
-                        st.switch_page("pages/3_Approval_View.py")
+                        st.session_state['navigate_to'] = 'approval_view'
+                        st.rerun()
                 elif current_status_en in ['PENDING_IMAGE_REVIEW', 'PENDING_REDO']:
                     if st.button("Finalize Image", key=f"action_{task_id}"):
                         st.session_state['current_task_id'] = task_id
-                        st.switch_page("pages/3_Approval_View.py")
+                        st.session_state['navigate_to'] = 'approval_view'
+                        st.rerun()
                 elif current_status_en == 'GENERATING':
                     st.warning("Processing...")
+                elif current_status_en == 'NEW' and not task.get('spec_sheet_text'):
+                    # Task was created but spec sheet generation failed
+                    if st.button("Retry Spec Sheet", key=f"retry_{task_id}", type="secondary"):
+                        st.session_state['retry_task_id'] = task_id
+                        st.rerun()
                 else:
                     st.caption("No further actions.")

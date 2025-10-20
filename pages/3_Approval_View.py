@@ -21,8 +21,7 @@ if 'current_task_id' in st.session_state and st.session_state['current_task_id']
         st.error("Could not find Task ID: {}. It may have been deleted.".format(task_id))
         st.warning("Resetting session and returning to the dashboard.")
         st.session_state['current_task_id'] = None
-        if st.button("Go to Dashboard"):
-            st.switch_page("pages/1_Dashboard.py")
+        st.switch_page("pages/1_Dashboard.py")
     else:
         st.header(f"Working on Task ID: {task_id} for Product: {task.get('product_code', 'N/A')}")
         

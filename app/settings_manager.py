@@ -5,8 +5,18 @@ import os
 
 SETTINGS_FILE = "data/settings.json"
 DEFAULT_SETTINGS = {
-    "vision_model": None,
-    "language_model": None
+    "vision_service": {
+        "provider": "openai",
+        "model": "gpt-4o"
+    },
+    "language_service": {
+        "provider": "openai", 
+        "model": "gpt-3.5-turbo"
+    },
+    "image_generation_service": {
+        "provider": "openai",
+        "model": "dall-e-3"
+    }
 }
 
 def load_settings():

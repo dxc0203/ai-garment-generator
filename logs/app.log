@@ -56,3 +56,26 @@
 2025-10-15 23:19:22,101 - app.config - INFO - SQLite 'chat_history' table checked/created successfully.
 2025-10-15 23:26:13,628 - app.database.crud - INFO - Retrieved 0 tasks from database
 2025-10-15 23:34:21,086 - app.database.crud - INFO - Retrieved 0 tasks from database
+2025-10-19 22:15:16,187 - app.config - INFO - AI service called with model: gpt-4o, task_id: None, test_mode: True, has_image: True
+2025-10-19 22:15:16,189 - app.config - INFO - Test mode response: [TEST MODE] Spec sheet generated for image 'temp_1-1.jpg' with prompt: 'Template 1: Describe the product' using model: gpt-4o
+2025-10-19 22:15:35,178 - app.config - INFO - AI service called with model: gpt-3.5-turbo, task_id: None, test_mode: False, has_image: True
+2025-10-19 22:15:35,179 - app.config - INFO - Making OpenAI API call with model gpt-3.5-turbo
+2025-10-19 22:15:35,180 - app.config - ERROR - Unexpected error in AI service: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-10-19 22:18:49,886 - app.config - INFO - AI service called with model: gpt-3.5-turbo, task_id: None, test_mode: False, has_image: True
+2025-10-19 22:18:49,888 - app.config - INFO - Making OpenAI API call with model gpt-3.5-turbo
+2025-10-19 22:18:51,341 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:18:53,057 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:18:56,318 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:18:56,320 - app.config - ERROR - OpenAI API error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+2025-10-19 22:29:23,809 - app.config - INFO - AI service called with model: gpt-3.5-turbo, task_id: None, test_mode: False, has_image: True
+2025-10-19 22:29:23,811 - app.config - INFO - Making OpenAI API call with model gpt-3.5-turbo
+2025-10-19 22:29:24,941 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:29:26,069 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:29:28,461 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:29:28,462 - app.config - ERROR - OpenAI API error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+2025-10-19 22:54:20,930 - app.config - INFO - AI service called with model: gpt-4o, task_id: None, test_mode: False, has_image: True
+2025-10-19 22:54:20,931 - app.config - INFO - Making OpenAI API call with model gpt-4o
+2025-10-19 22:54:21,848 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:54:23,037 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:54:25,395 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-19 22:54:25,396 - app.config - ERROR - OpenAI API error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}

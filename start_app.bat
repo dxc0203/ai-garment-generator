@@ -13,7 +13,7 @@ if "%1"=="--clean" set CLEAN_INSTALL=1
 if "%1"=="-c" set CLEAN_INSTALL=1
 
 echo.
-echo [1/4] Checking Python installation...
+echo [1/5] Checking Python installation...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo Python is not installed or not added to PATH. Please install Python 3.11 or later and try again.
@@ -22,7 +22,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo [2/4] Setting up virtual environment...
+echo [2/5] Setting up virtual environment...
 if exist .\.venv (
     if %CLEAN_INSTALL%==1 (
         echo Clean install requested. Removing existing virtual environment...
@@ -45,37 +45,31 @@ if %errorlevel% neq 0 (
 call .\.venv\Scripts\activate.bat
 
 echo.
-echo [3/4] Upgrading pip and setuptools...
+echo [3/5] Upgrading pip and setuptools...
 python -m pip install --upgrade pip setuptools wheel
 pip cache purge
 
 echo.
-echo [4/4] Installing required packages...
-if exist requirements.txt (
-    echo Installing packages from requirements.txt...
-    pip install --no-cache-dir -r requirements.txt
-    if %errorlevel% neq 0 (
-        echo First attempt failed. Clearing pip cache and trying again...
-        pip cache purge
-        pip install --no-cache-dir -r requirements.txt
-        if %errorlevel% neq 0 (
-            echo Second attempt failed. Trying with --force-reinstall...
-            pip install --force-reinstall --no-cache-dir -r requirements.txt
-            if %errorlevel% neq 0 (
-                echo Package installation failed after multiple attempts.
-                echo You may need to manually delete the .venv folder and run again.
-                pause
-                exit /b
-            )
-        )
+echo [4/5] Installing required packages...
+python check_models.py
+if %errorlevel% neq 0 (
+    echo.
+    echo Model availability check completed with warnings.
+    echo The application may not work correctly with unavailable models.
+    echo Please review the suggestions above and update app/constants.py if needed.
+    echo.
+    set /p CONTINUE="Do you want to continue anyway? (y/N): "
+    if /i not "!CONTINUE!"=="y" (
+        echo Application launch cancelled.
+        pause
+        exit /b
     )
-    echo Package installation completed successfully.
 ) else (
-    echo requirements.txt not found. Skipping package installation.
+    echo Model availability check passed.
 )
 
 echo.
-echo Launching the Streamlit App...
+echo [5/5] Launching the Streamlit App...
 python -m streamlit run Home.py
 
 echo.
