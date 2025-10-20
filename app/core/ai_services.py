@@ -10,7 +10,17 @@ from app.config import logger, DATABASE_PATH
 # Load environment variables from .env file
 load_dotenv()
 
-client = OpenAI()
+def get_openai_client():
+    """Get or create OpenAI client with proper configuration."""
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable is not set")
+    
+    # Create client without any proxy configuration
+    return OpenAI(api_key=api_key)
+
+# Global client reference
+client = None
 
 def encode_image(image_path):
     """
@@ -76,6 +86,11 @@ def call_ai_service(user_message, task_id=None, model="gpt-4o", image_path=None,
     # Call OpenAI API using the specified model
     try:
         logger.info(f"Making OpenAI API call with model {model}")
+        # Get client if not already initialized
+        global client
+        if client is None:
+            client = get_openai_client()
+        
         response = client.chat.completions.create(
             model=model,
             messages=messages
@@ -90,5 +105,3 @@ def call_ai_service(user_message, task_id=None, model="gpt-4o", image_path=None,
         logger.error(f"Unexpected error in AI service: {e}")
         raise RuntimeError(f"Unexpected error: {e}")
     
-# Example usage:
-# response = call_ai_service("Generate a spec sheet for the uploaded image.", task_id=123, image_path="/path/to/image.jpg") 
