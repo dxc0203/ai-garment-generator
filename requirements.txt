@@ -1,5 +1,5 @@
 # Main application framework
-streamlit==1.28.0
+streamlit>=1.28.0,<2.0.0
 
 # For making API calls to local AI servers
 requests==2.31.0

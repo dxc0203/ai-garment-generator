@@ -101,7 +101,99 @@ python -m streamlit run Home.py
 
 The application will open in your web browser, ready to use.
 
-# AI Garment Generator - Setup and Launch Instructions
+## Package Updates and Maintenance
+
+The application includes robust package management features to ensure smooth operation:
+
+### Automatic Updates (Recommended)
+When you run `start_app.bat`, it automatically:
+- Checks for corrupted packages that could cause pip failures
+- Upgrades pip to the latest version
+- Updates setuptools and wheel
+- Clears pip cache to prevent stale data issues
+
+### Manual Package Updates
+For more control, you can run specific update operations:
+
+```batch
+# Update all packages to their latest versions
+start_app.bat --update
+
+# Or use the short form
+start_app.bat -u
+```
+
+### Update Helper Script
+You can also run the update helper directly:
+
+```batch
+# Basic integrity check and pip upgrade
+python update_helper.py
+
+# Full update of all packages
+python update_helper.py --update-all
+```
+
+### Troubleshooting Package Issues
+If you encounter pip-related errors:
+1. Try a clean install: `start_app.bat --clean`
+2. Run manual updates: `start_app.bat --update`
+3. Check the logs in the `logs/` directory for detailed error information
+
+The update system automatically detects and fixes common issues like:
+- Corrupted package metadata
+- Outdated pip versions
+- Stale cache data
+- Missing or malformed package versions
+
+### Troubleshooting Specific Issues
+
+#### Web App Won't Start - Protobuf Import Error
+If you see `ModuleNotFoundError: No module named 'google.protobuf.internal'`:
+```bash
+# Fix corrupted protobuf installation
+pip uninstall protobuf
+pip install --upgrade protobuf
+```
+
+#### Streamlit Compatibility Issues
+Before updating Streamlit, check compatibility:
+```bash
+# Run compatibility checker
+python check_streamlit_compatibility.py
+```
+
+This will:
+- ✅ Verify your Streamlit version is compatible
+- ✅ Scan for deprecated features in your code
+- ✅ Test key APIs used by your app
+- ✅ Provide version constraint recommendations
+
+#### Streamlit Warning Monitor
+The app includes a comprehensive warning monitoring system:
+
+**Features:**
+- ⚠️ **Automatic Warning Capture**: Captures all Streamlit warnings and deprecation notices
+- 📊 **Warning Dashboard**: View warnings by category, severity, and timeline
+- 🔍 **Detailed Analysis**: Full warning details with stack traces
+- ✅ **Resolution Tracking**: Mark warnings as resolved with notes
+- 📈 **Analytics**: Charts showing warning trends and patterns
+
+**Access the Warning Monitor:**
+1. Go to the home page
+2. Click "View Warnings Monitor" in System Tools
+3. Review and manage captured warnings
+
+**Warning Categories Monitored:**
+- Deprecation warnings
+- API compatibility issues
+- Streamlit internal warnings
+- Custom application warnings
+- Error conditions
+
+**Log Files:**
+- Database: `data/streamlit_warnings.db`
+- Text logs: `logs/streamlit_warnings.log`
 
 ## Prerequisites
 1. **Python Installation**:

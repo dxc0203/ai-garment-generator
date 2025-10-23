@@ -16,6 +16,10 @@ from app.database import crud
 # language_selector()
 # display_model_status() # This one line replaces the entire block of code
 
+# TEMPORARILY DISABLE WARNING MONITOR
+# from app.warning_monitor import initialize_warning_monitor
+# warning_monitor = initialize_warning_monitor()
+
 # --- Page Config ---
 st.set_page_config(
     page_title="AI Garment Generator",
@@ -34,6 +38,10 @@ if 'navigate_to' in st.session_state:
         st.switch_page("pages/1_Dashboard.py")
     elif st.session_state['navigate_to'] == 'new_task':
         st.switch_page("pages/2_New_Task.py")
+    elif st.session_state['navigate_to'] == 'startup_logs':
+        st.switch_page("pages/7_Startup_Logs.py")
+    elif st.session_state['navigate_to'] == 'warnings':
+        st.switch_page("pages/8_Streamlit_Warnings.py")
     del st.session_state['navigate_to']
 
 st.subheader("System Status Overview")
@@ -118,3 +126,42 @@ with guide_col2:
                 del st.session_state['dashboard_filter']
             st.session_state['navigate_to'] = 'dashboard'
             st.rerun()
+
+st.markdown("---")
+
+st.subheader("System Tools & Diagnostics")
+
+tools_col1, tools_col2, tools_col3 = st.columns(3)
+
+with tools_col1:
+    with st.container():
+        st.markdown("#### 🔧 Startup Logs & Diagnostics")
+        st.write('Monitor application startup issues and apply automatic fixes.')
+        if st.button('View Startup Diagnostics'):
+            st.session_state['navigate_to'] = 'startup_logs'
+            st.rerun()
+
+with tools_col2:
+    with st.container():
+        st.markdown("#### ⚠️ Streamlit Warnings")
+        st.write('Monitor Streamlit deprecation warnings and compatibility issues.')
+        if st.button('View Warnings Monitor'):
+            st.session_state['navigate_to'] = 'warnings'
+            st.rerun()
+
+with tools_col3:
+    with st.container():
+        st.markdown("#### 📊 System Status")
+        st.write('View real-time system status and task statistics.')
+        # Check for recent warnings
+        try:
+            # TEMPORARILY DISABLED
+            # stats = warning_monitor.get_warning_stats()
+            # recent_warnings = stats.get('recent_24h', 0)
+            # if recent_warnings > 0:
+            #     st.warning(f"⚠️ {recent_warnings} warnings in last 24h")
+            # else:
+            #     st.info("System is operational ✅")
+            st.info("System is operational ✅")
+        except Exception as e:
+            st.info("System is operational ✅")

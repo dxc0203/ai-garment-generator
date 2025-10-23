@@ -19,3 +19,18 @@ outputs/
 
 # Secret keys
 .env
+logs/startup_20252010_172228.log
+logs/startup_20252010_172656.log
+logs/startup_20252010_172750.log
+logs/startup_20252010_172853.log
+logs/startup_20252010_173139.log
+logs/startup_20252010_173239.log
+logs/startup_20252010_215913.log
+logs/startup_20252010_220020.log
+logs/startup_20252010_220243.log
+logs/startup_20252010_220441.log
+logs/startup_20252010_224609.log
+logs/startup_20252010_224906.log
+logs/startup_20252010_225138.log
+logs/startup_20252010_225338.log
+logs/streamlit_warnings.log

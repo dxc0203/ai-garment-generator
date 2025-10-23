@@ -27,14 +27,14 @@ from app.settings_manager import load_settings, save_settings
 
 def check_model_availability():
     """Check which models are available and suggest replacements for unavailable ones."""
-    print("🔍 Checking OpenAI model availability...")
+    print("Checking OpenAI model availability...")
 
     # Load environment variables
     load_dotenv()
     api_key = os.getenv('OPENAI_API_KEY')
 
     if not api_key:
-        print("❌ OPENAI_API_KEY not found in environment variables.")
+        print("ERROR: OPENAI_API_KEY not found in environment variables.")
         print("   Please set your OpenAI API key in the .env file.")
         return False
 
@@ -43,7 +43,7 @@ def check_model_availability():
         available_models = client.models.list()
         available_model_ids = {model.id for model in available_models.data}
 
-        print(f"✅ Successfully connected to OpenAI API. Found {len(available_model_ids)} available models.")
+        print(f"SUCCESS: Successfully connected to OpenAI API. Found {len(available_model_ids)} available models.")
 
         # Check all models in our constants
         unavailable_models = []
@@ -57,7 +57,7 @@ def check_model_availability():
                 unavailable_models.append(model)
 
         if unavailable_models:
-            print(f"\n⚠️  {len(unavailable_models)} configured models are no longer available:")
+            print(f"\nWARNING: {len(unavailable_models)} configured models are no longer available:")
             print("-" * 60)
 
             # Group by category and suggest replacements
@@ -73,9 +73,9 @@ def check_model_availability():
 
                 replacement = suggest_replacement(model, category, available_model_ids)
 
-                print(f"❌ {model}")
+                print(f"UNAVAILABLE: {model}")
                 if replacement:
-                    print(f"   ➡️  Suggested replacement: {replacement}")
+                    print(f"   -> Suggested replacement: {replacement}")
                     replacements_suggested.add(replacement)
                     suggestions_list.append({
                         "unavailable_model": model,
@@ -83,7 +83,7 @@ def check_model_availability():
                         "category": category
                     })
                 else:
-                    print("   ➡️  No suitable replacement found in current available models")
+                    print("   -> No suitable replacement found in current available models")
                     suggestions_list.append({
                         "unavailable_model": model,
                         "suggested_replacement": None,
@@ -96,12 +96,12 @@ def check_model_availability():
                 current_settings = load_settings()
                 current_settings["model_suggestions"] = suggestions_list
                 save_settings(current_settings)
-                print("💾 Model replacement suggestions saved to settings.")
+                print("SAVED: Model replacement suggestions saved to settings.")
                 print("   You can review and update your default models in the Settings page.")
                 print()
 
             if replacements_suggested:
-                print("💡 To update your configuration:")
+                print("INFO: To update your configuration:")
                 print("   1. Edit app/constants.py")
                 print("   2. Replace unavailable models with suggested replacements")
                 print("   3. Or update your default models in the Settings page")
@@ -109,11 +109,11 @@ def check_model_availability():
 
             return len(unavailable_models) == 0
         else:
-            print("✅ All configured models are available!")
+            print("SUCCESS: All configured models are available!")
             return True
 
     except Exception as e:
-        print(f"❌ Failed to check model availability: {e}")
+        print(f"ERROR: Failed to check model availability: {e}")
         print("   This might be due to network issues or invalid API key.")
         return False
 
