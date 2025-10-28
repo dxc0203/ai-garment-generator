@@ -1,109 +1,92 @@
 @echo off
 
-title AI Garment Generator Launcher
+echo Starting AI Garment Generator...
 
-REM Create logs directory if it doesn't exist
-if not exist logs mkdir logs
-
-REM Set log file path
-set LOG_FILE=logs\startup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%.log
-set LOG_FILE=%LOG_FILE: =0%
-
-echo =================================================== > "%LOG_FILE%"
-echo  AI Garment Generator - Application Launcher >> "%LOG_FILE%"
-echo  Started at: %date% %time% >> "%LOG_FILE%"
-echo =================================================== >> "%LOG_FILE%"
-echo. >> "%LOG_FILE%"
-
-echo ===================================================
-echo  AI Garment Generator - Application Launcher
-echo ===================================================
-echo.
-
-REM Check for command line flags
-set CLEAN_INSTALL=0
-set UPDATE_PACKAGES=0
-if "%1"=="--clean" set CLEAN_INSTALL=1
-if "%1"=="-c" set CLEAN_INSTALL=1
-if "%1"=="--update" set UPDATE_PACKAGES=1
-if "%1"=="-u" set UPDATE_PACKAGES=1
-
-echo [1/5] Checking Python installation...
-echo [INFO] %date% %time% - Checking Python installation... >> "%LOG_FILE%"
+REM Check Python installation
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] %date% %time% - Python is not installed or not added to PATH. Please install Python 3.11 or later and try again. >> "%LOG_FILE%"
-    echo Python is not installed or not added to PATH. Please install Python 3.11 or later and try again.
+    echo ERROR: Python is not installed or not in PATH
+    echo Please install Python 3.11+ and add it to your PATH
     pause
-    exit /b
+    exit /b 1
 )
-echo [SUCCESS] %date% %time% - Python installation verified >> "%LOG_FILE%"
 
-echo.
-echo [2/5] Setting up virtual environment...
-echo [INFO] %date% %time% - Setting up virtual environment... >> "%LOG_FILE%"
-if exist .\.venv (
-    if %CLEAN_INSTALL%==1 (
-        echo Clean install requested. Removing existing virtual environment...
-        echo [INFO] %date% %time% - Clean install requested, removing existing virtual environment >> "%LOG_FILE%"
-        rmdir /s /q .venv
-        echo Creating fresh virtual environment...
-        echo [INFO] %date% %time% - Creating fresh virtual environment >> "%LOG_FILE%"
-        python -m venv .venv
-    ) else (
-        echo Virtual environment already exists. Use --clean or -c flag for fresh install.
-        echo If you experience issues, run: start_app.bat --clean
-        echo [INFO] %date% %time% - Using existing virtual environment >> "%LOG_FILE%"
-    )
-) else (
-    echo No existing virtual environment found.
+REM Check Python version
+for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
+for /f "tokens=1,2 delims=." %%a in ("%PYTHON_VERSION%") do (
+    set PYTHON_MAJOR=%%a
+    set PYTHON_MINOR=%%b
+)
+
+if %PYTHON_MAJOR% lss 3 (
+    echo ERROR: Python 3.11+ required. Current: %PYTHON_VERSION%
+    pause
+    exit /b 1
+)
+if %PYTHON_MAJOR%==3 if %PYTHON_MINOR% lss 11 (
+    echo ERROR: Python 3.11+ required. Current: %PYTHON_VERSION%
+    pause
+    exit /b 1
+)
+
+echo Python %PYTHON_VERSION% found
+
+REM Create virtual environment if it doesn't exist
+if not exist .venv (
     echo Creating virtual environment...
-    echo [INFO] %date% %time% - No existing virtual environment found, creating new one >> "%LOG_FILE%"
     python -m venv .venv
+    if %errorlevel% neq 0 (
+        echo ERROR: Failed to create virtual environment
+        pause
+        exit /b 1
+    )
 )
-if %errorlevel% neq 0 (
-    echo [ERROR] %date% %time% - Failed to create virtual environment. Please check your Python installation. >> "%LOG_FILE%"
-    echo Failed to create virtual environment. Please check your Python installation.
-    pause
-    exit /b
-)
-echo [SUCCESS] %date% %time% - Virtual environment setup completed >> "%LOG_FILE%"
+
+REM Activate virtual environment
+echo Activating virtual environment...
 call .\.venv\Scripts\activate.bat
-
-echo.
-echo [3/5] Upgrading pip and setuptools...
-echo Skipping update helper temporarily to get app running...
-echo [INFO] %date% %time% - Skipping update helper to speed up startup >> "%LOG_FILE%"
-echo [SUCCESS] %date% %time% - Update process skipped >> "%LOG_FILE%"
-
-echo.
-echo [4/5] Installing required packages...
-echo [INFO] %date% %time% - Starting package installation >> "%LOG_FILE%"
-python check_models.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo.
-    echo Model availability check completed with warnings.
-    echo The application may not work correctly with unavailable models.
-    echo Please review the suggestions above and update app/constants.py if needed.
-    echo.
-    echo [WARNING] %date% %time% - Model availability check completed with warnings >> "%LOG_FILE%"
-    echo Continuing automatically in 5 seconds... (Press Ctrl+C to cancel)
-    echo [INFO] %date% %time% - Continuing automatically after model check warnings >> "%LOG_FILE%"
-    timeout /t 5 /nobreak >nul 2>&1
-) else (
-    echo Model availability check passed.
-    echo [SUCCESS] %date% %time% - Model availability check passed >> "%LOG_FILE%"
+    echo ERROR: Failed to activate virtual environment
+    pause
+    exit /b 1
 )
 
-echo.
-echo [5/5] Launching the Streamlit App...
-echo [INFO] %date% %time% - Launching Streamlit application >> "%LOG_FILE%"
+REM Upgrade pip
+echo Upgrading pip...
+python -m pip install --upgrade pip >nul 2>&1
+
+REM Force clean reinstall of all requirements to fix corrupted packages
+echo Force reinstalling all packages...
+python -m pip install --force-reinstall -r requirements.txt
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to reinstall requirements
+    pause
+    exit /b 1
+)
+
+REM Test critical imports
+echo Testing imports...
+python -c "
+try:
+    import streamlit
+    import openai
+    import pandas
+    import PIL
+    print('All imports successful')
+except ImportError as e:
+    print(f'Import error: {e}')
+    exit(1)
+"
+
+if %errorlevel% neq 0 (
+    echo ERROR: Critical imports failed
+    pause
+    exit /b 1
+)
+
+REM Launch the application
+echo Launching application...
 python -m streamlit run Home.py
 
-echo.
-echo ===================================================
-echo  Application has been launched in your browser.
-echo  You can close this window when you are finished.
-echo ===================================================
-echo [SUCCESS] %date% %time% - Application launched successfully >> "%LOG_FILE%"
-pause
+echo Application launched. Press any key to close...
+pause >nul
